@@ -1,0 +1,53 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    stream:
+      defaultBinder: defaultRabbit
+      bindings:      # 服务的整合处理
+        input:        # 这个名字是一个通道的名称,可自定义
+          destination: stream-rabbitmq-qian    # 目的，对应 MQ 是 exchange， 生成临时队列，#表示要使用的Exchange名称定义
+          contentType: application/json         # 设置消息类型  text/plain
+          binder: defaultRabbit                 # 设置要绑定的消息服务的具体设置
+          group: qian-group                    # 进行操作的分组，实际上就表示持久化--消费端配置
+#        output:
+#          destination: stream-rabbitqm-test
+#          contentType: text/plain
+#          binder: defaultRabbit
+#        inputOrder:
+#          destination: mqTestOrder
+#          group: orderReceiveGroup1     # 具体分组 对应 MQ 是 队列名称 并且持久化队列
+#        outputOrder:
+#          destination: mqTestOrder
+#          contentType: text/plain      # 实体 json string 在传递的类型装换
+#        inputProductAdd:
+#          destination: mqTestProduct
+#          group: addProductHandler      # 拥有 group 默认会持久化队列
+#        outputProductAdd:
+#          destination: mqTestProduct
+      rabbit:                   # 进行rabbit的相关绑定配置
+        bindings:
+          input:                  # 这个名字是一个通道的名称,可自定义
+            consumer:             # 进行消费端配置
+              bindingRoutingKey: qian-key.*       # 用来绑定消费者的 routing key，设置一个RoutingKey信息
+#          outputProductAdd:
+#            producer:
+#              routing-key-expression: '''addProduct.*'''  # 需要用这个来指定 RoutingKey
+      binders:
+        defaultRabbit:
+          type: rabbit
+          environment:
+            spring:
+             rabbitmq:
+              host: 127.0.0.1
+              username: guest
+              password: guest
+              virtual-host: /
+  application:
+    name: stream-rabbitmq-consumer
+#  rabbitmq:                  # 默认的 mq的配置时候，上述的配置方式，可以支持多个 broker
+#    virtual-host: dev
+#    host: 127.0.0.1
+#    username: username
+#    password: pass
